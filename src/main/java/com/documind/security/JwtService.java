@@ -27,16 +27,23 @@ public class JwtService {
 	}
 
 	public AccessToken createAccessToken(UUID userId, Role role) {
+		return createAccessToken(userId, role, null);
+	}
+
+	public AccessToken createAccessToken(UUID userId, Role role, String email) {
 		Instant issuedAt = clock.instant();
 		Instant expiresAt = issuedAt.plus(jwtProperties.accessTokenTtl());
-		JwtClaimsSet claims = JwtClaimsSet.builder()
+		JwtClaimsSet.Builder claimsBuilder = JwtClaimsSet.builder()
 				.subject(userId.toString())
 				.claim("roles", List.of(role.name()))
 				.issuer(jwtProperties.issuer())
 				.issuedAt(issuedAt)
 				.expiresAt(expiresAt)
-				.id(UUID.randomUUID().toString())
-				.build();
+				.id(UUID.randomUUID().toString());
+		if (email != null) {
+			claimsBuilder.claim("email", email);
+		}
+		JwtClaimsSet claims = claimsBuilder.build();
 
 		JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
 		String value = jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();

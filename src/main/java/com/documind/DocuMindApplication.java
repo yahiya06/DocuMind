@@ -11,5 +11,4 @@ public class DocuMindApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(DocuMindApplication.class, args);
 	}
-
 }
